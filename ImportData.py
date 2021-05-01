@@ -1,4 +1,3 @@
-import sklearn
 import scipy
 import pandas as pd
 import numpy as np
@@ -8,7 +7,9 @@ def import_data(modes):
     data = {"test": {}, "train": {}}
     test = pd.read_csv("COMP30027_2021_Project2_datasets/recipe_test.csv")
     train = pd.read_csv("COMP30027_2021_Project2_datasets/recipe_train.csv")
-    data["duration"] = train["duration_label"]
+
+    # Pandas series
+    data["train"]["duration"] = train["duration_label"]
 
     # Pandas series
     data["test"]["n_steps"] = test["n_steps"]
@@ -59,8 +60,8 @@ def import_data(modes):
         data["train"]["doc100"] = train_doc100
     return data
 
-    # When all imports are active data should have the structure: {"Test": {...}, "Train": {...}}
-        # data["Test"] = {"n_steps": (pd.series), "n_ingr": (pd.series), "BoW": (some DF type Bag of Words vectors), "doc50": (pd.DataFrame 50 dimensions),
-        #   "doc100": (pd.DataFrame 100 dimensions)}
-        # data["Train"] = {"duration": (pd.series categorical), "n_steps": (pd.series), "n_ingr": (pd.series), "countvec": (dict of total word counts across 
-        #   all instances), "BoW": (some DF type Bag of Words vectors), "doc50": (pd.DataFrame 50 dimensions), "doc100": (pd.DataFrame 100 dimensions)}
+    ''' When all imports are active data should have the structure: {"Test": {...}, "Train": {...}}
+            data["Test"] = {"n_steps": (pd.series), "n_ingr": (pd.series), "BoW": (some DF type Bag of Words vectors), "doc50": (pd.DataFrame 50 dimensions),
+                "doc100": (pd.DataFrame 100 dimensions)}
+            data["Train"] = {"duration": (pd.series categorical), "n_steps": (pd.series), "n_ingr": (pd.series), "countvec": (dict of total word counts across 
+                all instances), "BoW": (some DF type Bag of Words vectors), "doc50": (pd.DataFrame 50 dimensions), "doc100": (pd.DataFrame 100 dimensions)}'''
