@@ -4,9 +4,9 @@ import pickle
 
 def import_data(modes):
 	""" 
-	When all imports are active data should have the structure: {"Test": {...}, "Train": {...}}
-		data["Test"] = {"n_steps": (pd.series), "n_ingr": (pd.series), "BoW": (some DF type Bag of Words vectors), "doc50": (pd.DataFrame 50 dimensions),"doc100": (pd.DataFrame 100 dimensions)}
-		data["Train"] = {"duration": (pd.series categorical), "n_steps": (pd.series), "n_ingr": (pd.series), "countvec": (dict of total word counts across all instances), "BoW": (some DF type Bag of Words vectors), "doc50": (pd.DataFrame 50 dimensions), "doc100": (pd.DataFrame 100 dimensions)}
+	When all imports are active data should have the structure: {"test": {...}, "train": {...}}
+		data["test"] = {"n_steps": (pd.series), "n_ingr": (pd.series), "BoW": (some DF type Bag of Words vectors), "doc50": (pd.DataFrame 50 dimensions),"doc100": (pd.DataFrame 100 dimensions)}
+		data["train"] = {"duration": (pd.series categorical), "n_steps": (pd.series), "n_ingr": (pd.series), "countvec": (dict of total word counts across all instances), "BoW": (some DF type Bag of Words vectors), "doc50": (pd.DataFrame 50 dimensions), "doc100": (pd.DataFrame 100 dimensions)}
 	"""
 	data = {"test": {}, "train": {}}
 	test = pd.read_csv("COMP30027_2021_Project2_datasets/recipe_test.csv")
@@ -28,7 +28,7 @@ def import_data(modes):
 		modes = ["countvec", "doc50", "doc100"]
 
 	# data[train[countvec]]: List of dictionaries of wordcounts per instance for training set.
-	# data[set[BoW]]: List of vectors of wordcounts per instance. Vectors are each the size of #unique words
+	# data[set[BoW]]: List of vectors of wordcounts per instance. Vectors are each the size of unique words
 	# from all instances of the respective dataset.
 	# List dimensions have: 0: name, 1: ingredients, 2: steps.
 	if "countvec" in modes:
