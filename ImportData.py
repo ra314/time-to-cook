@@ -23,6 +23,10 @@ def import_data(modes):
 	data["test"]["n_ingr"] = test["n_ingredients"]
 	data["train"]["n_ingr"] = train["n_ingredients"]
 
+	# Importing all data
+	if "all" in modes:
+		modes = ["countvec", "doc50", "doc100"]
+
 	# data[train[countvec]]: List of dictionaries of wordcounts per instance for training set.
 	# data[set[BoW]]: List of vectors of wordcounts per instance. Vectors are each the size of #unique words
 	# from all instances of the respective dataset.
