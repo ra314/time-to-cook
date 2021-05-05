@@ -16,3 +16,8 @@ with parallel_backend('threading', n_jobs=8):
 	model.score(X,y)
 	
 # 0.72 with 5000 iterations
+
+def load_model_and_score():
+	from joblib import load
+	model = load("svm_model.sav")
+	model.score(X,y)
