@@ -3,7 +3,7 @@ import pandas as pd
 import pickle
 from sklearn.model_selection import train_test_split
 
-def import_data(modes, test_size, RS):
+def import_data(modes = ["all"], test_size = 0.8, RS = 1):
 	""" 
 	test size: Size ratio of test partition in train_test_split(). RS: Random state integer for train_test_split().
 	When all imports are active data should have the structure: {"test": {...}, "train": "train": {...}, "test": {...}}
