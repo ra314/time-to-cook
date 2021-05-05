@@ -1,34 +1,40 @@
 import scipy
 import pandas as pd
 import pickle
+from sklearn.model_selection import train_test_split
 
-def import_data(modes):
+def import_data(modes, test_size, RS):
 	""" 
-	When all imports are active data should have the structure: {"test": {...}, "train": {...}}
+	test size: Size ratio of test partition in train_test_split(). RS: Random state integer for train_test_split().
+	When all imports are active data should have the structure: {"test": {...}, "train": "train": {...}, "test": {...}}
 		data["test"] = {"n_steps": (pd.series), "n_ingr": (pd.series), "BoW": (some DF type Bag of Words vectors), "doc50": (pd.DataFrame 50 dimensions),"doc100": (pd.DataFrame 100 dimensions)}
-		data["train"] = {"duration": (pd.series categorical), "n_steps": (pd.series), "n_ingr": (pd.series), "countvec": (dict of total word counts across all instances), "BoW": (some DF type Bag of Words vectors), "doc50": (pd.DataFrame 50 dimensions), "doc100": (pd.DataFrame 100 dimensions)}
+		data["train"]["train" / "test"] = {"duration": (pd.series categorical), "n_steps": (pd.series), "n_ingr": (pd.series), "countvec": (dict of total word counts across all instances), "BoW": (some DF type Bag of Words vectors), "doc50": (pd.DataFrame 50 dimensions), "doc100": (pd.DataFrame 100 dimensions)}
 	"""
-	data = {"test": {}, "train": {}}
+	data = {"test": {}, "train": {"train": {}, "test": {}}}
 	test = pd.read_csv("COMP30027_2021_Project2_datasets/recipe_test.csv")
 	train = pd.read_csv("COMP30027_2021_Project2_datasets/recipe_train.csv")
+	X_train, X_test = train_test_split(train, test_size = test_size, random_state = RS)
 
 	# Pandas series
-	data["train"]["duration"] = train["duration_label"]
+	data["train"]["train"]["duration"] = X_train["duration_label"]
+	data["train"]["test"]["duration"] = X_test["duration_label"]
 
 	# Pandas series
+	data["train"]["train"]["n_steps"] = X_train["n_steps"]
+	data["train"]["test"]["n_steps"] = X_test["n_steps"]
 	data["test"]["n_steps"] = test["n_steps"]
-	data["train"]["n_steps"] = train["n_steps"]
 
 	# Pandas series
+	data["train"]["train"]["n_ingr"] = X_train["n_ingredients"]
+	data["train"]["test"]["n_ingr"] = X_test["n_ingredients"]
 	data["test"]["n_ingr"] = test["n_ingredients"]
-	data["train"]["n_ingr"] = train["n_ingredients"]
 
 	# Importing all data
 	if "all" in modes:
 		modes = ["countvec", "doc50", "doc100"]
 
-	# data[train[countvec]]: List of dictionaries of wordcounts per instance for training set.
-	# data[set[BoW]]: List of vectors of wordcounts per instance. Vectors are each the size of unique words
+	# data[train][train/test][countvec]: List of dictionaries of wordcounts per instance for training set.
+	# data[set]([train/test])[BoW]: List of vectors of wordcounts per instance. Vectors are each the size of unique words
 	# from all instances of the respective dataset.
 	# List dimensions have: 0: name, 1: ingredients, 2: steps.
 	if "countvec" in modes:
@@ -41,11 +47,15 @@ def import_data(modes):
 
 		test_BoW_matrices = [scipy.sparse.load_npz(directory + file_name) for file_name in test_file_names]
 		train_BoW_matrices = [scipy.sparse.load_npz(directory + file_name) for file_name in train_file_names]
-		data["train"]["countvec"] = count_dicts
-		data["test"]["BoW"] = test_BoW_matrices
-		data["train"]["BoW"] = train_BoW_matrices
 
-	# data[set[doc50]]: List of pandas dataframes each with a 50 dimensional vector per instance.
+		data["train"]["train"]["BoW"] = [[], [], []]
+		data["train"]["test"]["BoW"] = [[], [], []]
+		data["train"]["train"]["countvec"] = count_dicts
+		for i in range(3):
+			data["train"]["train"]["BoW"][i], data["train"]["test"]["BoW"][i] = train_test_split(train_BoW_matrices[i], test_size = test_size, random_state = RS)
+		data["test"]["BoW"] = test_BoW_matrices
+
+	# data[set]([train/test])[doc50]: List of pandas dataframes each with a 50 dimensional vector per instance.
 	# List dimensions have: 0: name, 1: ingredients, 2: steps.
 	if "doc50" in modes:
 		directory = "COMP30027_2021_Project2_datasets/recipe_text_features_doc2vec50/"
@@ -53,10 +63,15 @@ def import_data(modes):
 		train_file_names = ("train_name_doc2vec50.csv", "train_ingr_doc2vec50.csv", "train_steps_doc2vec50.csv")
 		test_doc50 = [pd.read_csv(directory + file_name, index_col = False, delimiter = ',', header=None) for file_name in test_file_names]
 		train_doc50 = [pd.read_csv(directory + file_name, index_col = False, delimiter = ',', header=None) for file_name in train_file_names]
-		data["test"]["doc50"] = test_doc50
-		data["train"]["doc50"] = train_doc50
 
-	# data[set[doc100]]: List of pandas dataframes each with a 100 dimensional vector per instance.
+		data["train"]["train"]["doc50"] = [[], [], []]
+		data["train"]["test"]["doc50"] = [[], [], []]
+		for i in range(3):
+			data["train"]["train"]["doc50"][i], data["train"]["test"]["doc50"][i] = train_test_split(train_doc50[i], test_size = test_size, random_state = RS)
+		data["test"]["doc50"] = test_doc50
+
+
+	# data[set]([train/test])[doc100]: List of pandas dataframes each with a 100 dimensional vector per instance.
 	# List dimensions have: 0: name, 1: ingredients, 2: steps.
 	if "doc100" in modes:
 		directory = "COMP30027_2021_Project2_datasets/recipe_text_features_doc2vec100/"
@@ -64,6 +79,11 @@ def import_data(modes):
 		train_file_names = ("train_name_doc2vec100.csv", "train_ingr_doc2vec100.csv", "train_steps_doc2vec100.csv")
 		test_doc100 = [pd.read_csv(directory + file_name, index_col = False, delimiter = ',', header=None) for file_name in test_file_names]
 		train_doc100 = [pd.read_csv(directory + file_name, index_col = False, delimiter = ',', header=None) for file_name in train_file_names]
+
+		data["train"]["train"]["doc100"] = [[], [], []]
+		data["train"]["test"]["doc100"] = [[], [], []]
+		for i in range(3):
+			data["train"]["train"]["doc100"][i], data["train"]["test"]["doc100"][i] = train_test_split(train_doc100[i], test_size = test_size, random_state = RS)
 		data["test"]["doc100"] = test_doc100
-		data["train"]["doc100"] = train_doc100
+
 	return data
