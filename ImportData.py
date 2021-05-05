@@ -18,6 +18,8 @@ def import_data(modes = ["all"], test_size = 0.8, RS = 1):
 	# Pandas series
 	data["train"]["train"]["duration"] = X_train["duration_label"]
 	data["train"]["test"]["duration"] = X_test["duration_label"]
+	if "0-R" in modes:
+		return [data["train"]["train"]["duration"], data["train"]["test"]["duration"]]
 
 	# Pandas series
 	data["train"]["train"]["n_steps"] = X_train["n_steps"]
@@ -48,12 +50,10 @@ def import_data(modes = ["all"], test_size = 0.8, RS = 1):
 		test_BoW_matrices = [scipy.sparse.load_npz(directory + file_name) for file_name in test_file_names]
 		train_BoW_matrices = [scipy.sparse.load_npz(directory + file_name) for file_name in train_file_names]
 
-		data["train"]["train"]["BoW"] = [[], [], []]
-		data["train"]["test"]["BoW"] = [[], [], []]
-		data["train"]["train"]["countvec"] = count_dicts
-		for i in range(3):
-			data["train"]["train"]["BoW"][i], data["train"]["test"]["BoW"][i] = train_test_split(train_BoW_matrices[i], test_size = test_size, random_state = RS)
+		tuples = [train_test_split(matrix, test_size = test_size, random_state = RS) for matrix in train_BoW_matrices]
+		data["train"]["train"]["BoW"], data["train"]["test"]["BoW"] = zip(*tuples)
 		data["test"]["BoW"] = test_BoW_matrices
+		data["train"]["train"]["countvec"] = count_dicts
 
 	# data[set]([train/test])[doc50]: List of pandas dataframes each with a 50 dimensional vector per instance.
 	# List dimensions have: 0: name, 1: ingredients, 2: steps.
@@ -64,10 +64,8 @@ def import_data(modes = ["all"], test_size = 0.8, RS = 1):
 		test_doc50 = [pd.read_csv(directory + file_name, index_col = False, delimiter = ',', header=None) for file_name in test_file_names]
 		train_doc50 = [pd.read_csv(directory + file_name, index_col = False, delimiter = ',', header=None) for file_name in train_file_names]
 
-		data["train"]["train"]["doc50"] = [[], [], []]
-		data["train"]["test"]["doc50"] = [[], [], []]
-		for i in range(3):
-			data["train"]["train"]["doc50"][i], data["train"]["test"]["doc50"][i] = train_test_split(train_doc50[i], test_size = test_size, random_state = RS)
+		tuples = [train_test_split(DF, test_size = test_size, random_state = RS) for DF in train_doc50]
+		data["train"]["train"]["doc50"], data["train"]["test"]["doc50"] = zip(*tuples)
 		data["test"]["doc50"] = test_doc50
 
 
@@ -80,10 +78,8 @@ def import_data(modes = ["all"], test_size = 0.8, RS = 1):
 		test_doc100 = [pd.read_csv(directory + file_name, index_col = False, delimiter = ',', header=None) for file_name in test_file_names]
 		train_doc100 = [pd.read_csv(directory + file_name, index_col = False, delimiter = ',', header=None) for file_name in train_file_names]
 
-		data["train"]["train"]["doc100"] = [[], [], []]
-		data["train"]["test"]["doc100"] = [[], [], []]
-		for i in range(3):
-			data["train"]["train"]["doc100"][i], data["train"]["test"]["doc100"][i] = train_test_split(train_doc100[i], test_size = test_size, random_state = RS)
-		data["test"]["doc100"] = test_doc100
+		tuples = [train_test_split(DF, test_size = test_size, random_state = RS) for DF in train_doc100]
+		data["train"]["train"]["doc100"], data["train"]["test"]["doc100"] = zip(*tuples)
+		data["test"]["doc50"] = test_doc100
 
 	return data
