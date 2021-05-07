@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 
 def predict_for_kaggle(model, test_data):
 	predictions = model.predict(test_data)
