@@ -80,6 +80,6 @@ def import_data(modes = ["all"], test_size = 0.8, RS = 1):
 
 		tuples = [train_test_split(DF, test_size = test_size, random_state = RS) for DF in train_doc100]
 		data["train"]["train"]["doc100"], data["train"]["test"]["doc100"] = zip(*tuples)
-		data["test"]["doc50"] = test_doc100
+		data["test"]["doc100"] = test_doc100
 
 	return data
