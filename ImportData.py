@@ -18,7 +18,7 @@ def import_data(modes = ["all"], train_size = 0.8, RS = 1):
 	# Pandas series
 	data["train"]["train"]["duration"] = X_train["duration_label"]
 	data["train"]["test"]["duration"] = X_test["duration_label"]
-	if "0-R" in modes:
+	if "labels only" in modes:
 		return [data["train"]["train"]["duration"], data["train"]["test"]["duration"]]
 
 	# Pandas series
@@ -30,6 +30,17 @@ def import_data(modes = ["all"], train_size = 0.8, RS = 1):
 	data["train"]["train"]["n_ingr"] = X_train["n_ingredients"]
 	data["train"]["test"]["n_ingr"] = X_test["n_ingredients"]
 	data["test"]["n_ingr"] = test["n_ingredients"]
+
+	if "raw" in modes:
+		# data[set]([train/test])[raw_name]: Pandas Series of raw recipe names. Entries are strings.
+		# data[set]([train/test])[raw_ingr]: Pandas Series of ingredients. Entries are lists of strings.
+		# data[set]([train/test])[raw_steps]: Pandas Series of recipe steps. Entries are lists of strings.
+		data["train"]["train"]["raw_name"] = X_train["name"]
+		data["train"]["test"]["raw_name"] = X_test["name"]
+		data["train"]["train"]["raw_ingr"] = X_train["ingredients"]
+		data["train"]["test"]["raw_ingr"] = X_test["ingredients"]
+		data["train"]["train"]["raw_steps"] = X_train["steps"]
+		data["train"]["test"]["raw_steps"] = X_test["steps"]
 
 	# Importing all data
 	if "all" in modes:
