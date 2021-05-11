@@ -3,6 +3,9 @@ import pandas as pd
 import pickle
 from sklearn.model_selection import train_test_split
 
+def split(train_size = 0.8, RS = 1):
+	train_test_split(train, train_size = train_size, random_state = RS)
+
 def import_data(modes = ["all"], train_size = 0.8, RS = 1):
 	""" 
 	test size: Size ratio of test partition in train_test_split(). RS: Random state integer for train_test_split().
@@ -32,16 +35,9 @@ def import_data(modes = ["all"], train_size = 0.8, RS = 1):
 	data["test"]["n_ingr"] = test["n_ingredients"]
 
 	if "raw" in modes:
-		# data[set]([train/test])[raw_name]: Pandas Series of raw recipe names. Entries are strings.
-		# data[set]([train/test])[raw_ingr]: Pandas Series of ingredients. Entries are lists of strings.
-		# data[set]([train/test])[raw_steps]: Pandas Series of recipe steps. Entries are lists of strings.
-		data["train"]["train"]["raw_name"] = X_train["name"]
-		data["train"]["test"]["raw_name"] = X_test["name"]
-		data["train"]["train"]["raw_ingr"] = X_train["ingredients"]
-		data["train"]["test"]["raw_ingr"] = X_test["ingredients"]
-		data["train"]["train"]["raw_steps"] = X_train["steps"]
-		data["train"]["test"]["raw_steps"] = X_test["steps"]
-
+		# Returns train test split of original text pandas data frames.
+		return X_train, X_test
+		
 	# Importing all data
 	if "all" in modes:
 		modes = ["countvec", "doc50", "doc100"]
