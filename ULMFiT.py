@@ -1,5 +1,5 @@
 from ImportData import import_data
-from fastai.text.all import *
+#from fastai.text.all import *
 import pandas as pd
 import numpy as np
 from sklearn.feature_selection import chi2
@@ -32,5 +32,7 @@ train = format_to_text(train)
 test = format_to_text(test)
 
 # https://docs.fast.ai/tutorial.text.html
-dls = TextDataLoaders.from_df(train)
-learn = text_classifier_learner(dls, AWD_LSTM, drop_mult=0.5, metrics=accuracy)
+#dls = TextDataLoaders.from_df(train, valid = test)
+#learn = text_classifier_learner(dls, AWD_LSTM, drop_mult=0.5, metrics=accuracy)
+
+
