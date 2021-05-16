@@ -17,5 +17,8 @@ columns = ['name', 'steps', 'ingredients']
 
 
 for column in columns:
-	train[column + '_stripped'] = train[column].apply(remove_punctuations)
-	train[column + '_stems'] = train[column + '_stripped'].apply(lemmatize_sentence)
+    print(column)
+    train[column + '_stripped'] = train[column].apply(remove_punctuations)
+    print("Punctuation removed.")
+    train[column + '_stems'] = train[column + '_stripped'].apply(lemmatize_sentence)
+    print("Lemmatization complete.")
