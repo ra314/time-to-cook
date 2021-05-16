@@ -60,11 +60,8 @@ model.add(LSTM(100, dropout=0.2, recurrent_dropout=0.2))
 model.add(Dense(3, activation='softmax'))
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
-epochs = 5
-batch_size = 64
 
 #history = model.fit(sequences_matrix, Y_train, epochs=epochs, batch_size=batch_size,validation_split=0.1,callbacks=[EarlyStopping(monitor='val_loss', patience=3, min_delta=0.0001)])
-
 
 
 #model = RNN()
