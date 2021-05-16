@@ -9,19 +9,19 @@ train, test = import_data(["raw"])
 
 def format_to_text(df):
 	#Including the number of steps and ingredients
-	f = lambda x,y: f"This recipe has {x} steps and {y} ingredients\n"
+	f = lambda x,y: f"this recipe has {x} steps and {y} ingredients\n"
 	df['intro'] = df[['n_steps','n_ingredients']].apply(lambda x: f(*x), axis = 1)
 
 	# Joining the steps into a long string
-	f = lambda x: "The steps to make this are: \n" + "\n".join(ast.literal_eval(x))
+	f = lambda x: "the steps to make this are: \n" + "\n".join(ast.literal_eval(x))
 	df['steps'] = df['steps'].apply(f)
 
 	# Joining the ingredients into a long string
-	f = lambda x: "\nThe ingredients needed are: \n" + ", ".join(ast.literal_eval(x))
+	f = lambda x: "\nthe ingredients needed are: \n" + ", ".join(ast.literal_eval(x))
 	df['ingredients'] = df['ingredients'].apply(f)
 
 	#Adding the word title to the title
-	df['name'] = df['name'].apply(lambda x: "Title: " + x + "\n")
+	df['name'] = df['name'].apply(lambda x: "title: " + x + "\n")
 	
 	#Concatenating all of the columns
 	df['text'] = df['name'] + df['intro'] + df['steps'] + df['ingredients']
