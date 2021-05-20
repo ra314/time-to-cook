@@ -11,7 +11,8 @@ from keras.layers import LSTM, Activation, Dense, Dropout, Input, Embedding, Spa
 from keras.optimizers import RMSprop
 from keras.preprocessing.text import Tokenizer
 from keras.preprocessing import sequence
-from keras.callbacks import EarlyStopping
+from keras.callbacks import EarlyStopping, ModelCheckpoint
+import tensorflow as tf
 
 #import os
 #os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
@@ -28,7 +29,7 @@ Y = pd.get_dummies(df['duration_label']).values
 #Y = le.fit_transform(Y)
 #Y = Y.reshape(-1,1)
 
-X_train,X_test,Y_train,Y_test = train_test_split(X,Y,test_size=0.15)
+X_train,X_test,Y_train,Y_test = train_test_split(X,Y,test_size=0.2, random_state=1)
 
 #Y_train = np.asarray(Y_train).astype('float32').reshape((-1,1))
 #Y_test = np.asarray(Y_test).astype('float32').reshape((-1,1))
@@ -61,9 +62,10 @@ def RNN():
 model = Sequential()
 model.add(Embedding(max_words, 50, input_length=max_len))
 model.add(SpatialDropout1D(0.2))
-model.add(Bidirectional(GRU(1024, dropout=0.2, recurrent_dropout=0.2)))
-#model.add(Bidirectional(GRU(200, return_sequences=True, dropout=0.2, recurrent_dropout=0.2)))
-#model.add(Bidirectional(GRU(200, dropout=0.2, recurrent_dropout=0.2)))
+#model.add(Bidirectional(GRU(200, dropout=0.2, recurrent_dropout=0)))
+model.add(Bidirectional(GRU(200, return_sequences=True, dropout=0.2, recurrent_dropout=0)))
+model.add(Bidirectional(GRU(100, return_sequences=True, dropout=0.2, recurrent_dropout=0)))
+model.add(Bidirectional(GRU(10, dropout=0.2, recurrent_dropout=0)))
 model.add(Dense(3, activation='softmax'))
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
@@ -74,14 +76,22 @@ model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accur
 #model = RNN()
 model.summary()
 
-model.fit(sequences_matrix,Y_train,batch_size=16,epochs=100, validation_split=0.2,callbacks=[EarlyStopping(monitor='val_loss', patience = 10, min_delta=0.0001)])
+checkpoint = model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
+    filepath="NN/BID_GRU_200+200.h5",
+    monitor='val_accuracy',
+    mode='max',
+    save_best_only=True)
+
+model.fit(sequences_matrix,Y_train,batch_size=128,epochs=30, validation_split=0.2,callbacks=[checkpoint])#[EarlyStopping(monitor='val_loss', patience = 30, min_delta=0.0001)])
           
 test_sequences = tok.texts_to_sequences(X_test) 
 test_sequences_matrix = sequence.pad_sequences(test_sequences,maxlen=max_len)
 
 accr = model.evaluate(test_sequences_matrix,Y_test)
 
+
 print('Test set\n  Loss: {:0.3f}\n  Accuracy: {:0.3f}'.format(accr[0],accr[1]))
+
 
 # LSTM 100 neurons softmax no rec dropout 44.1% acc on 0.15 test size 0.0001 callback
 # LSTM 500 neurons softmax no rec dropout 66.9% acc on 0.15 test size 0.0001 callback
@@ -111,7 +121,7 @@ print('Test set\n  Loss: {:0.3f}\n  Accuracy: {:0.3f}'.format(accr[0],accr[1]))
 # BID GRU 200 + 200 neurons softmax rec dropout = 0 80.3% acc on 0.15 test size 0.0001 callback patience = 5 30 epochs finished at 13. Not sure why it stopped though.
 #   Another 30 epochs: Stopped after 7. 79.0%.
 # Model1: BID GRU 200 + 200 neurons softmax rec dropout = 0.2 on both layers 0.80% acc on 0.15 test size 0.0001 callback 
-#	Did't continue ffurther because val acc had been decreasing for a while This was at epoch 13.
+#	Didn't continue further because val acc had been decreasing for a while This was at epoch 13.
 # Model2: Used a smaller bidirectional LSTM 128 neurons softmax rec dropout = 0.2
 #	Changed the number of words and the max len to something more reasonable
 #	Stopped at Epoch 15 Max Val acc was 0.8019
